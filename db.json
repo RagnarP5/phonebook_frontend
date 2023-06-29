@@ -42,8 +42,13 @@
     },
     {
       "content": "Using noteService",
-      "important": false,
+      "important": true,
       "id": 9
+    },
+    {
+      "content": "Using noteService",
+      "important": true,
+      "id": 10
     }
   ]
 }
