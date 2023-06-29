@@ -4,7 +4,8 @@ import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import axios from 'axios'
 import personService from './services/persons'
-
+import Notification from './components/Notification'
+import Error from './components/Error'
 
 
 const Header = ({ text }) => {
@@ -19,7 +20,8 @@ const App = () => {
     const [newNumber, setNewNumber] = useState('Your number')
     const [filterValue, setFilterValue] = useState('')
     const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filterValue.toLowerCase()))
-    const [personToDelete, setPersonToDelete] = useState(null)
+    const [notificationMessage, setNotificationMessage] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null)
 
     const getAllHook = () => {
         personService.getAll()
@@ -50,6 +52,12 @@ const App = () => {
                     .then(returnedPerson => {
                         setPersons(persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson))
                     })
+                setNotificationMessage(
+                    `'${person.name}' was updated`
+                )
+                setTimeout(() => {
+                    setNotificationMessage(null)
+                }, 5000)
             }
         }
         else {
@@ -67,6 +75,12 @@ const App = () => {
                 })
 
             setPersons(persons.concat(personObject))
+            setNotificationMessage(
+                `'${personObject.name}' was added`
+            )
+            setTimeout(() => {
+                setNotificationMessage(null)
+            }, 5000)
         }
     }
 
@@ -76,12 +90,21 @@ const App = () => {
 
         if (confirmDelete) {
             personService.remove(id)
+                .catch(error => {
+                setErrorMessage(
+                    `${personToDelete.name} has already been deleted`
+                )
+                setTimeout(() => {
+                    setNotificationMessage(null)
+                }, 5000)
+            })
+
+
             setPersons(persons.filter(person => person.id !== id))
+
         }
 
-
     }
-
 
     const handleFilterChange = (event) => {
         setFilterValue(event.target.value)
@@ -91,7 +114,8 @@ const App = () => {
     return (
         <div>
             <h1>Phonebook</h1>
-            {/*<div>filter shown with <input value={filterValue} onChange={handleFilterChange}/></div>*/}
+            <Error message={errorMessage} />
+            <Notification message={notificationMessage} />
             <Filter value={filterValue} onChange={handleFilterChange}/>
             <Header text='add a new' />
             <PersonForm onSubmit={addPerson}
